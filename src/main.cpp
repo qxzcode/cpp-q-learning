@@ -35,8 +35,6 @@ void printState() {
     constexpr int HEIGHT = 20;
     cout << "\033c"; // clear console
     
-    setCursorPos(gameState.ballX*WIDTH+1, (1-gameState.ballY)*HEIGHT+1);
-    cout << "O";
     for (int y = 0; y < HEIGHT; y++) {
         double yf = 1 - (y + 0.5)/HEIGHT;
         if (fabs(yf - gameState.myPaddleY) < simulation::PADDLE_RADIUS) {
@@ -48,6 +46,8 @@ void printState() {
             cout << "|";
         }
     }
+    setCursorPos(gameState.ballX*WIDTH+1, (1-gameState.ballY)*HEIGHT+1);
+    cout << "O";
     
     setCursorPos(0, HEIGHT+1);
     cout << std::flush;
@@ -93,9 +93,10 @@ void doUpdate() {
 
 std::atomic<bool> cinReady(false);
 
-int main() {
+int main(int argc, char*[]) {
     cout << "== Q-learning ==" << endl;
-    State::loadStates();
+    if (argc < 2)
+        State::loadStates();
     
     // flush cin
     cin.seekg(0, std::ios::end);
