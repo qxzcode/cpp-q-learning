@@ -2,19 +2,16 @@
 
 class GameState {
 public:
-    double myPaddleY, yourPaddleY;
-    double ballX, ballY;
-    double ballVX, ballVY;
+    static constexpr int BUF_SIZE = 6;
+    static constexpr int NUM_ITEMS = BUF_SIZE-1;
+    int buf[BUF_SIZE] = {0};
+    int heldItem = 0;
+    int handPos = 0;
     
-    double normBallVX() const { return normV(ballVX); }
-    double normBallVY() const { return normV(ballVY); }
+    GameState() {
+        buf[0] = 1;
+    }
     
-    static constexpr double MAX_V = 1.0;
-    static constexpr double normV(double v) {
-        return v/(2*MAX_V) + 0.5;
-    }
-    static constexpr double unnormV(double norm) {
-        return (norm - 0.5) * (2*MAX_V);
-    }
+    int& pointedItem() { return buf[handPos]; }
     
 };

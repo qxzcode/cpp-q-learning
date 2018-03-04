@@ -5,14 +5,15 @@
 
 struct state_key;
 
+using ull_t = unsigned long long;
+static constexpr ull_t ipow(ull_t base, int exp, ull_t result = 1) {
+    return exp < 1 ? result : ipow(base*base, exp/2, (exp % 2) ? result*base : result);
+}
+
 class State {
 public:
     static constexpr double INITIAL_Q = 0.0;
-    static constexpr long QUANTS_X = 20;
-    static constexpr long QUANTS_Y = 40;
-    static constexpr long QUANTS_VX = 20;
-    static constexpr long QUANTS_VY = 20;
-    static constexpr long NUM_STATES = QUANTS_X*QUANTS_Y*QUANTS_Y*QUANTS_Y*QUANTS_VX*QUANTS_VY;
+    static constexpr ull_t NUM_STATES = ipow(GameState::NUM_ITEMS+1, GameState::BUF_SIZE + 1)*(GameState::BUF_SIZE);
     static State& getState(const GameState& gs);
     static void saveStates();
     static void loadStates();

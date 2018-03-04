@@ -22,46 +22,27 @@ void sleep(long ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-void setCursorPos(int x, int y) {
-    cout << "\033["<<y<<";"<<x<<"H";
-}
-
-constexpr long DELAY_MS = 30;
-
 void printState() {
-    sleep(DELAY_MS);
-    
-    constexpr int WIDTH = 60;
-    constexpr int HEIGHT = 20;
-    cout << "\033c"; // clear console
-    
-    for (int y = 0; y < HEIGHT; y++) {
-        double yf = 1 - (y + 0.5)/HEIGHT;
-        if (fabs(yf - gameState.myPaddleY) < simulation::PADDLE_RADIUS) {
-            setCursorPos(1, y+1);
-            cout << "|";
-        }
-        if (fabs(yf - gameState.yourPaddleY) < simulation::PADDLE_RADIUS) {
-            setCursorPos(WIDTH, y+1);
-            cout << "|";
-        }
+    for (int i = 0; i < GameState::BUF_SIZE; i++) {
+        cout << ' ' << gameState.buf[i];
     }
-    setCursorPos(gameState.ballX*WIDTH+1, (1-gameState.ballY)*HEIGHT+1);
-    cout << "O";
-    
-    setCursorPos(0, HEIGHT+1);
-    cout << std::flush;
+    cout << '\n';
+    for (int i = 0; i < GameState::BUF_SIZE; i++) {
+        cout << (i == gameState.handPos? " ^" : "  ");
+    }
+    cout << '\n';
+    for (int i = 0; i < GameState::BUF_SIZE; i++) {
+        cout << ' ';
+        if (i == gameState.handPos) cout << gameState.heldItem;
+        else cout << ' ';
+    }
+    cout << '\n' << endl;
 }
 
 int numResets = 0;
 void reset() {
     lastState = nullptr;
-    gameState.myPaddleY = 0.5;
-    gameState.yourPaddleY = 0.5;
-    gameState.ballX = 0.5;
-    gameState.ballY = random();
-    gameState.ballVX = GameState::MAX_V*0.75*-1;
-    gameState.ballVY = GameState::MAX_V*0.5*(random()<0.5? 1 : -1);
+    gameState = GameState();
     numResets++;
 }
 
@@ -69,7 +50,7 @@ int statesFound = 0;
 double lastSave = 0;
 void doUpdate() {
     lastAction = lastState? learner.chooseAction(*lastState) : Action::NONE;
-    auto res = simulation::simulateFor(gameState, lastAction, DELAY_MS/1000.0);
+    auto res = simulation::stepSimulation(gameState, lastAction);
     
     State* curState = res.first? lastState : &State::getState(gameState);
     if (lastState) {

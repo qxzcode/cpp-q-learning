@@ -7,36 +7,21 @@
 #include "debug.h"
 
 struct state_key {
-    size_t myPaddleY, yourPaddleY;
-    size_t ballX, ballY;
-    size_t ballVX, ballVY;
     size_t hash;
     
     state_key() {}
     
     explicit state_key(const GameState& gs) {
-        myPaddleY = quantize(gs.myPaddleY, State::QUANTS_Y);
-        yourPaddleY = quantize(gs.yourPaddleY, State::QUANTS_Y);
-        ballX = quantize(gs.ballX, State::QUANTS_X);
-        ballY = quantize(gs.ballY, State::QUANTS_Y);
-        ballVX = quantize(gs.normBallVX(), State::QUANTS_VX);
-        ballVY = quantize(gs.normBallVY(), State::QUANTS_VY);
+        hash = 0;
+        for (int i = 0; i < GameState::BUF_SIZE; i++) {
+            hash = hash*(GameState::NUM_ITEMS+1) + gs.buf[i];
+        }
+        hash = hash*(GameState::NUM_ITEMS+1) + gs.heldItem;
+        hash = hash*(GameState::BUF_SIZE) + gs.handPos;
     }
-    
-    static constexpr size_t MAX = 1.0;
-    size_t quantize(double prop, size_t numQuants) {
-        size_t val = static_cast<size_t>(numQuants * prop/MAX);
-        hash = hash*numQuants + val;
-        return val;
-    }
-    
-    // static double unquantize(size_t val, size_t numQuants) {
-    //     return MAX * (val+0.5)/numQuants;
-    // }
     
     bool operator==(const state_key& rhs) const {
-        return myPaddleY==rhs.myPaddleY && yourPaddleY==rhs.yourPaddleY &&
-               ballX==rhs.ballX && ballY==rhs.ballY;
+        return hash == rhs.hash;
     }
 };
 
@@ -56,37 +41,29 @@ State& State::getState(const GameState& gs) {
     if (it == states.end()) {
         it = states.emplace(key, State(key)).first;
         statesFound++;
-        // cout << "States found: "<<statesFound<<" / "<<State::NUM_STATES<<"\r" << std::flush;
     }
     return it->second;
 }
 
 void State::saveStates() {
     std::ofstream out("save.dat", std::ios::binary);
-    out << statesFound;
     for (const auto& entry : states) {
         out.write((char*)&entry.first, sizeof(entry.first));
         out.write((char*)&entry.second.Q, sizeof(entry.second.Q));
     }
-    cout << "Saved "<<states.size()<<" states" << endl;
-    cout << "    "<<statesFound<<"/"<<NUM_STATES<<" states found" << endl;
+    cout << "Saved "<<states.size()<<"/"<<NUM_STATES<<" states" << endl;
 }
 
 void State::loadStates() {
     std::ifstream in("save.dat", std::ios::binary);
-    in >> statesFound;
     while (in.good()) {
         state_key key;
         in.read((char*)&key, sizeof(key));
         State state(key);
         in.read((char*)&state.Q, sizeof(state.Q));
-        // cout << state.Q[0] << "\t";
-        // cout << state.Q[1] << "\t";
-        // cout << state.Q[2] << endl;
         states.emplace(key, std::move(state));
     }
-    cout << "Loaded "<<states.size()<<" states" << endl;
-    cout << "    "<<statesFound<<"/"<<NUM_STATES<<" states found" << endl;
+    cout << "Loaded "<<states.size()<<"/"<<NUM_STATES<<" states" << endl;
 }
 
 
