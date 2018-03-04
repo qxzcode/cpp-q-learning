@@ -70,6 +70,20 @@ void State::saveStates() {
     }
     cout << "Saved "<<states.size()<<" states" << endl;
     cout << "    "<<statesFound<<"/"<<NUM_STATES<<" states found" << endl;
+    
+    out = std::ofstream("data.csv");
+    for (const auto& entry : states) {
+        const auto& key = entry.first;
+        const auto& state = entry.second;
+        out << key.myPaddleY<<',';
+        out << key.yourPaddleY<<',';
+        out << key.ballX<<',';
+        out << key.ballY<<',';
+        out << key.ballVX<<',';
+        out << key.ballVY<<',';
+        out << state.getMaxQ()<<'\n';
+    }
+    cout << "Wrote CSV file" << endl;
 }
 
 void State::loadStates() {
