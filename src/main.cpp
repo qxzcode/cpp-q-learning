@@ -26,7 +26,7 @@ void setCursorPos(int x, int y) {
     cout << "\033["<<y<<";"<<x<<"H";
 }
 
-constexpr long DELAY_MS = 100;
+constexpr long DELAY_MS = 30;
 
 void printState() {
     sleep(DELAY_MS);
