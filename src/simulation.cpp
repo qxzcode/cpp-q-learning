@@ -70,7 +70,7 @@ std::pair<bool, double> simulation::stepSimulation(GameState& state, Action acti
         }
     }
     
-    return {false, +0.1*dt};
+    return {false, -0.1*dt};
 }
 
 std::pair<bool, double> simulation::simulateFor(GameState& state, Action action, double time) {

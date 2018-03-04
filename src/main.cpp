@@ -8,7 +8,7 @@
 #include "simulation.h"
 
 GameState gameState;
-Learner learner(0.8, 0.96, 0.1);
+Learner learner(0.8, 0.96, 0.5);
 State* lastState;
 Action lastAction;
 
@@ -26,8 +26,10 @@ void setCursorPos(int x, int y) {
     cout << "\033["<<y<<";"<<x<<"H";
 }
 
+constexpr long DELAY_MS = 100;
+
 void printState() {
-    sleep(50);
+    sleep(DELAY_MS);
     
     constexpr int WIDTH = 60;
     constexpr int HEIGHT = 20;
@@ -66,16 +68,10 @@ void reset() {
 int statesFound = 0;
 double lastSave = 0;
 void doUpdate() {
-    auto res = simulation::simulateFor(gameState,
-                                       lastState? learner.chooseAction(*lastState) : Action::NONE,
-                                       0.05);
+    lastAction = lastState? learner.chooseAction(*lastState) : Action::NONE;
+    auto res = simulation::simulateFor(gameState, lastAction, DELAY_MS/1000.0);
     
     State* curState = res.first? lastState : &State::getState(gameState);
-    if (curState && !curState->found) {
-        curState->found = true;
-        statesFound++;
-        // cout << "States found: "<<statesFound<<" / "<<State::NUM_STATES<<"\r" << std::flush;
-    }
     if (lastState) {
         learner.observeReward(*lastState, lastAction, *curState, res.second);
     }
@@ -99,7 +95,7 @@ std::atomic<bool> cinReady(false);
 
 int main() {
     cout << "== Q-learning ==" << endl;
-    // State::loadStates();
+    State::loadStates();
     
     // flush cin
     cin.seekg(0, std::ios::end);
