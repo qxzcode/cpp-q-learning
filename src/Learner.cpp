@@ -4,9 +4,11 @@
 #include <random>
 #include <chrono>
 
+#include "debug.h"
+
 static std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
-static double random() {
+double random() {
     return dist(gen);
 }
 

@@ -2,6 +2,9 @@
 
 #include <algorithm> // std::max_element
 #include <unordered_map>
+#include <fstream>
+
+#include "debug.h"
 
 static constexpr auto NUM_QUANTS = State::NUM_QUANTS;
 
@@ -10,6 +13,8 @@ struct state_key {
     size_t ballX, ballY;
     size_t ballVX, ballVY;
     size_t hash;
+    
+    state_key() {}
     
     explicit state_key(const GameState& gs) {
         myPaddleY = quantize(gs.myPaddleY, NUM_QUANTS);
@@ -54,6 +59,36 @@ State& State::getState(const GameState& gs) {
     }
     return it->second;
 }
+
+extern int statesFound;
+
+void State::saveStates() {
+    std::ofstream out("save.dat", std::ios::binary);
+    out << statesFound;
+    for (const auto& entry : states) {
+        out.write((char*)&entry.first, sizeof(entry.first));
+        out.write((char*)&entry.second.Q, sizeof(entry.second.Q));
+    }
+    cout << "Saved "<<states.size()<<" states" << endl;
+    cout << "    "<<statesFound<<"/"<<NUM_STATES<<" states found" << endl;
+}
+
+void State::loadStates() {
+    std::ifstream in("save.dat", std::ios::binary);
+    in >> statesFound;
+    while (in.good()) {
+        state_key key;
+        in.read((char*)&key, sizeof(key));
+        State state(key);
+        state.found = true;
+        in.read((char*)&state.Q, sizeof(state.Q));
+        states.emplace(key, std::move(state));
+    }
+    cout << "Loaded "<<states.size()<<" states" << endl;
+    cout << "    "<<statesFound<<"/"<<NUM_STATES<<" states found" << endl;
+}
+
+
 
 double State::getMaxQ() const {
     return *std::max_element(std::begin(Q), std::end(Q));
