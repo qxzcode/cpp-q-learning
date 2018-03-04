@@ -92,6 +92,10 @@ void doUpdate() {
 
 
 std::atomic<bool> cinReady(false);
+void flushCin() {
+    cin.seekg(0, std::ios::end);
+    cin.clear();
+}
 
 int main(int argc, char*[]) {
     cout << "== Q-learning ==" << endl;
@@ -99,12 +103,12 @@ int main(int argc, char*[]) {
         State::loadStates();
     
     // flush cin
-    cin.seekg(0, std::ios::end);
-    cin.clear();
+    flushCin();
     
     // start helper thread
     std::thread helperThread([]() {
         cin.peek();
+        flushCin();
         cinReady = true;
     });
     
