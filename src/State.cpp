@@ -109,7 +109,7 @@ double State::getMaxQ() const {
     return *std::max_element(std::begin(Q), std::end(Q));
 }
 
-State::State(const state_key& key) {
+State::State(const state_key&) {
     // gameState = {
     //     state_key::unquantize(key.myPaddleY, NUM_QUANTS),
     //     state_key::unquantize(key.yourPaddleY, NUM_QUANTS),
