@@ -12,7 +12,7 @@ Learner learner(0.8, 0.96, 0.5);
 State* lastState;
 Action lastAction;
 
-double random();
+double easyRand();
 
 double getTime() {
     return std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000.0;
@@ -59,9 +59,9 @@ void reset() {
     gameState.myPaddleY = 0.5;
     gameState.yourPaddleY = 0.5;
     gameState.ballX = 0.5;
-    gameState.ballY = random();
+    gameState.ballY = easyRand();
     gameState.ballVX = GameState::MAX_V*0.75*-1;
-    gameState.ballVY = GameState::MAX_V*0.5*(random()<0.5? 1 : -1);
+    gameState.ballVY = GameState::MAX_V*0.5*(easyRand()<0.5? 1 : -1);
     numResets++;
 }
 

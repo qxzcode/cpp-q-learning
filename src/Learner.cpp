@@ -8,7 +8,7 @@
 
 static std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
-double random() {
+double easyRand() {
     return dist(gen);
 }
 
@@ -21,7 +21,7 @@ Action Learner::chooseAction(const State& state) const {
     Action bestAction = Action::NUM_ACTIONS;
     double bestQ = -std::numeric_limits<double>::max();
     for (int ai = 0; ai < Action::NUM_ACTIONS; ai++) {
-        double Q = state.Q[ai] + random()*qRandomness;
+        double Q = state.Q[ai] + easyRand()*qRandomness;
         if (Q > bestQ) {
             bestQ = Q;
             bestAction = static_cast<Action>(ai);
